@@ -1,6 +1,6 @@
 # Windows 12 Web Project
 
-A web-based Windows 12 simulation created with HTML, CSS, and JavaScript.
+A web-based Windows 12 simulation created with HTML.
 
 ## Features
 
