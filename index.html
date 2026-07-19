@@ -137,11 +137,15 @@ body.safe-mode #wallpaper-layer{ filter:grayscale(0.6) brightness(0.8); }
 
 #desktop-icons{ position:absolute; top:56px; left:22px; display:flex; flex-direction:column; gap:16px; z-index:5; }
 .d-icon{ width:82px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; user-select:none; }
-.d-icon .glyph{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+.d-icon .glyph{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; position:relative;
   background:rgba(255,255,255,0.22); border:1px solid rgba(255,255,255,0.4); backdrop-filter:blur(6px); font-size:20px; }
 .d-icon:hover .glyph{ background:rgba(255,255,255,0.4); }
 .d-icon span.label{ font-size:11px; text-align:center; color:#1c1f38; text-shadow:0 1px 3px rgba(255,255,255,0.55); font-weight:600; }
 body.theme-dark .d-icon span.label{ color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
+.d-icon-del{ display:none; position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:rgba(20,20,30,0.85);
+  color:#fff; font-size:10px; align-items:center; justify-content:center; cursor:pointer; border:1px solid rgba(255,255,255,0.3); }
+.d-icon-deletable:hover .d-icon-del{ display:flex; }
+.d-icon-del:hover{ background:var(--err-red); }
 
 /* ===================== TOP BAR ===================== */
 #topbar{ position:absolute; top:10px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:12px;
@@ -454,7 +458,8 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
 .store-card{ padding:16px; border-radius:var(--radius-md); background:var(--tile-bg); border:1px solid var(--glass-border); }
 .store-card .sc-icon{ width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:10px; }
 .store-card .sc-name{ font-size:13px; font-weight:700; }
-.store-card .sc-dev{ font-size:10.5px; color:var(--ink-faint); margin-bottom:10px; }
+.store-card .sc-dev{ font-size:10.5px; color:var(--ink-faint); margin-bottom:6px; }
+.store-card .sc-desc{ font-size:11px; color:var(--ink-dim); line-height:1.4; margin-bottom:10px; min-height:28px; }
 .store-btn{ width:100%; padding:8px 0; border-radius:999px; border:none; font-size:12px; font-weight:700; cursor:pointer; background:var(--accent); color:#0e1030; }
 .store-btn.installed{ background:var(--tile-bg-hover); color:var(--ink); }
 .progress-track{ height:6px; border-radius:999px; background:var(--tile-bg-hover); margin-top:8px; overflow:hidden; display:none; }
@@ -668,6 +673,7 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
     <div class="d-icon" onclick="launchApp('beta')"><div class="glyph">🧪</div><span class="label">Beta App</span></div>
     <div class="d-icon" onclick="enterRecovery()"><div class="glyph">🛠️</div><span class="label">Recovery (demo)</span></div>
     <div class="d-icon" onclick="openWindow('security-window')"><div class="glyph">🛡️</div><span class="label">Windows 12 Security</span></div>
+    <div class="d-icon" onclick="openWindow('recyclebin-window')"><div class="glyph" style="position:relative;">🗑️<span id="recyclebin-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:var(--err-red); color:#fff; font-size:9px; font-weight:700; border-radius:999px; padding:1px 5px;">0</span></div><span class="label">Recycle Bin</span></div>
   </div>
 
   <!-- Top bar -->
@@ -705,6 +711,7 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
       <div class="app-tile" onclick="togglePanel('copilot-panel')"><div class="ic">🤖</div><div class="tl">Copilot</div></div>
       <div class="app-tile" onclick="openWindow('security-window')"><div class="ic">🛡️</div><div class="tl">Security</div></div>
       <div class="app-tile" onclick="openWindow('file-explorer-window')"><div class="ic">🗂️</div><div class="tl">File Explorer</div></div>
+      <div class="app-tile" onclick="openWindow('recyclebin-window')"><div class="ic">🗑️</div><div class="tl">Recycle Bin</div></div>
       <div class="app-tile" onclick="launchLegacyTool()"><div class="ic">🧩</div><div class="tl">Legacy Tool</div></div>
       <div class="app-tile" onclick="launchApp('beta')"><div class="ic">🧪</div><div class="tl">Beta App</div></div>
       <div class="app-tile" onclick="launchApp('mail', false)"><div class="ic">📧</div><div class="tl">Mail</div></div>
@@ -1140,6 +1147,30 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
     </div>
   </div>
 
+  <!-- Recycle Bin window -->
+  <div id="recyclebin-window" class="app-window" data-wm-title="Recycle Bin" data-wm-icon="🗑️">
+    <div class="win-titlebar" onmousedown="wmStartDrag(event,'recyclebin-window')">
+      <div class="tb-left">🗑️ Recycle Bin</div>
+      <div class="win-dots"><span class="c-min" onclick="wmMinimize('recyclebin-window')"></span><span class="c-max" onclick="wmToggleMaximize('recyclebin-window')"></span><span class="c-close" onclick="wmClose('recyclebin-window')"></span></div>
+    </div>
+    <div class="wm-resize-handle n" onmousedown="wmStartResize(event,'recyclebin-window','n')"></div>
+    <div class="wm-resize-handle s" onmousedown="wmStartResize(event,'recyclebin-window','s')"></div>
+    <div class="wm-resize-handle e" onmousedown="wmStartResize(event,'recyclebin-window','e')"></div>
+    <div class="wm-resize-handle w" onmousedown="wmStartResize(event,'recyclebin-window','w')"></div>
+    <div class="wm-resize-handle ne" onmousedown="wmStartResize(event,'recyclebin-window','ne')"></div>
+    <div class="wm-resize-handle nw" onmousedown="wmStartResize(event,'recyclebin-window','nw')"></div>
+    <div class="wm-resize-handle se" onmousedown="wmStartResize(event,'recyclebin-window','se')"></div>
+    <div class="wm-resize-handle sw" onmousedown="wmStartResize(event,'recyclebin-window','sw')"></div>
+    <div class="store-body" style="flex:1;">
+      <p class="sub" style="margin:0 0 14px;">Items deleted from the desktop land here. Restore them or delete them permanently.</p>
+      <div id="recyclebin-list"></div>
+      <div id="recyclebin-empty" style="text-align:center; font-size:12px; color:var(--ink-faint); padding:30px 0;">Recycle Bin is empty.</div>
+      <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+        <button class="ed-btn secondary" style="flex:none; padding:8px 16px;" onclick="emptyRecycleBin()">Empty Recycle Bin</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Widgets board -->
   <div id="widgets-board">
     <div class="panel-header" style="padding:0 0 6px;"><div class="panel-title">Widgets</div><div class="panel-close" onclick="closeWindow('widgets-board')">✕</div></div>
@@ -1396,6 +1427,7 @@ async function unlockToDesktop(){
   await loadUserPrefs();
   loadCustomWallpaper(); // applied after prefs so a saved custom photo wins over a built-in wallpaper class
   loadImportedItems();
+  loadRecycleBin();
 }
 
 function updateLockClock(){
@@ -1628,6 +1660,7 @@ const APP_WINDOW_META = {
   'store-window': {icon:'🛍️', title:'Microsoft Store'},
   'security-window': {icon:'🛡️', title:'Windows 12 Security'},
   'file-explorer-window': {icon:'🗂️', title:'File Explorer'},
+  'recyclebin-window': {icon:'🗑️', title:'Recycle Bin'},
 };
 let switcherIndex = 0;
 let switcherOpen = false;
@@ -2587,27 +2620,55 @@ function micDecision(allow){
    MICROSOFT STORE (concept)
    ============================================================ */
 const STORE_APPS = [
-  {name:'Sketch Studio', dev:'Concept Labs', icon:'🎨'},
-  {name:'Focus Timer', dev:'Concept Labs', icon:'⏱️'},
-  {name:'Cloud Notes', dev:'Concept Labs', icon:'📝'},
-  {name:'Pulse Fitness', dev:'Concept Labs', icon:'💪'},
-  {name:'Aurora Music', dev:'Concept Labs', icon:'🎧'},
-  {name:'DevBox Terminal', dev:'Concept Labs', icon:'💻'},
+  {name:'Sketch Studio', dev:'Concept Labs', icon:'🎨', desc:'Simple drawing and sketching app.'},
+  {name:'Focus Timer', dev:'Concept Labs', icon:'⏱️', desc:'Pomodoro-style focus timer.'},
+  {name:'Cloud Notes', dev:'Concept Labs', icon:'📝', desc:'Quick notes synced across devices.'},
+  {name:'Pulse Fitness', dev:'Concept Labs', icon:'💪', desc:'Track workouts and activity.'},
+  {name:'Aurora Music', dev:'Concept Labs', icon:'🎧', desc:'Stream and organize your music.'},
+  {name:'DevBox Terminal', dev:'Concept Labs', icon:'💻', desc:'A lightweight terminal emulator.'},
+  {name:'Roblox', dev:'Roblox Corporation', icon:'🎮', desc:'Play and create millions of 3D worlds.'},
+  {name:'Minecraft', dev:'Mojang Studios', icon:'🧱', desc:'Build, explore, and survive in a blocky sandbox.'},
+  {name:'ChatGPT', dev:'OpenAI', icon:'💬', desc:'Chat with an AI assistant.', openUrl:'https://chat.openai.com'},
+  {name:'Claude', dev:'Anthropic', icon:'✦', desc:'Chat with Claude, an AI assistant.', openUrl:'https://claude.ai'},
+  {name:'Mini Games', dev:'Community', icon:'🕹️', desc:'A collection of small browser games.', special:'minigames', url:'https://minigames-site.base44.app'},
 ];
+function slugify(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
 function buildStoreGrid(){
   const grid = document.getElementById('store-app-grid');
   grid.innerHTML = '';
   STORE_APPS.forEach((app, i) => {
     const card = document.createElement('div');
     card.className = 'store-card';
+    card.id = 'store-app-' + slugify(app.name);
+    const btnLabel = app.special === 'minigames' ? 'Open' : 'Get';
+    const btnAction = app.special === 'minigames' ? `openMiniGames()` : `installApp(${i})`;
     card.innerHTML = `<div class="sc-icon">${app.icon}</div><div class="sc-name">${app.name}</div><div class="sc-dev">${app.dev}</div>
-      <button class="store-btn" id="store-btn-${i}" onclick="installApp(${i})">Get</button>
+      <div class="sc-desc">${app.desc || ''}</div>
+      <button class="store-btn" id="store-btn-${i}" onclick="${btnAction}">${btnLabel}</button>
       <div class="progress-track" id="store-prog-${i}"><div class="progress-fill" id="store-fill-${i}"></div></div>`;
     grid.appendChild(card);
   });
 }
+function jumpToStoreApp(name){
+  const el = document.getElementById('store-app-' + slugify(name));
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  el.style.outline = '2px solid var(--accent)';
+  setTimeout(() => { el.style.outline = ''; }, 1400);
+}
+function openMiniGames(){
+  // A real, honest outbound link — a webpage genuinely cannot read another
+  // site's login/account state, so this never pretends to check sign-in status.
+  window.open('https://minigames-site.base44.app', '_blank', 'noopener');
+  pushNotification('🕹️','Mini Games','Opened in a new tab. Sign in on the official site if it asks you to.', 'now');
+}
 function installApp(i){
+  const app = STORE_APPS[i];
   const btn = document.getElementById('store-btn-'+i);
+  if(btn.textContent === 'Open' && app.openUrl){
+    window.open(app.openUrl, '_blank', 'noopener');
+    return;
+  }
   if(btn.textContent === 'Uninstall'){
     btn.textContent = 'Get'; btn.classList.remove('installed');
     pushNotification('🛍️', STORE_APPS[i].name, 'Uninstalled.', 'now');
@@ -2624,7 +2685,9 @@ function installApp(i){
       fill.style.width = '100%';
       setTimeout(() => {
         track.classList.remove('show');
-        btn.style.pointerEvents = 'auto'; btn.textContent = 'Uninstall'; btn.classList.add('installed');
+        btn.style.pointerEvents = 'auto';
+        btn.textContent = app.openUrl ? 'Open' : 'Uninstall';
+        btn.classList.add('installed');
         pushNotification('🛍️', STORE_APPS[i].name, 'Installed successfully.', 'now');
       }, 300);
     } else { fill.style.width = pct+'%'; }
@@ -2932,7 +2995,7 @@ function isSelfImportAttempt(name){
   return n.includes('windows12') || n.includes('windows-12') || n.includes('windows_12') ||
          (n.endsWith('.html') && n.includes('concept') && (n.includes('os') || n.includes('windows')));
 }
-const TYPE_ICON = { image:'🖼', video:'🎬', website:'🌐', document:'📄', other:'📦' };
+const TYPE_ICON = { image:'🖼', video:'🎬', website:'🌐', document:'📄', other:'📦', game:'🎮' };
 
 function handleImportFiles(fileList){
   importQueue = importQueue.concat(Array.from(fileList));
@@ -3028,25 +3091,39 @@ function presentImportPreview(data){
     </div>
   `);
 }
-function confirmImportAdd(){
-  if(!currentImportStage) return;
-  const data = currentImportStage;
+function addImportedItem(fields, notifyText){
   const item = {
     id: 'imp_' + Date.now() + '_' + Math.floor(Math.random()*9999),
-    name: data.name,
-    type: data.type,
-    ext: data.ext,
-    thumb: (data.type === 'image' || data.type === 'video') ? data.dataUrl : null, // images persist; video blob URLs are session-only (stripped before saving)
-    url: data.url || null,
+    thumb: null,
+    url: null,
     addedAt: new Date().toLocaleString(),
+    ...fields,
   };
   importedItems.push(item);
   renderDesktopIconForItem(item);
   renderImportedItemsList();
   renderRecentFilesInExplorer();
   saveImportedItems();
-  pushNotification(TYPE_ICON[item.type], 'Import complete', item.name + ' was added to the desktop.', 'now');
+  pushNotification(TYPE_ICON[item.type], 'Import complete', notifyText || (item.name + ' was added to the desktop.'), 'now');
+  return item;
+}
+function confirmImportAdd(){
+  if(!currentImportStage) return;
+  const data = currentImportStage;
+  addImportedItem({
+    name: data.name,
+    type: data.type,
+    ext: data.ext,
+    thumb: (data.type === 'image' || data.type === 'video') ? data.dataUrl : null, // images persist; video blob URLs are session-only (stripped before saving)
+    url: data.url || null,
+  });
   closeImportModal(true);
+}
+function addGameShortcut(gameName){
+  addImportedItem(
+    { name: gameName, type: 'game', ext: null },
+    gameName + ' shortcut added — opening it looks it up in the Store.'
+  );
 }
 
 function handleImportWebsite(){
@@ -3085,16 +3162,18 @@ function handleImportWebsite(){
 function renderDesktopIconForItem(item){
   const box = document.getElementById('desktop-icons');
   const icon = document.createElement('div');
-  icon.className = 'd-icon';
+  icon.className = 'd-icon d-icon-deletable';
   icon.id = 'dicon-' + item.id;
   icon.onclick = () => openImportedItem(item.id);
-  icon.innerHTML = `<div class="glyph">${item.thumb ? `<img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">` : TYPE_ICON[item.type]}</div><span class="label">${item.name}</span>`;
+  icon.innerHTML = `<div class="glyph">${item.thumb ? `<img src="${item.thumb}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">` : TYPE_ICON[item.type]}
+      <span class="d-icon-del" title="Move to Recycle Bin" onclick="event.stopPropagation(); moveToRecycleBin('${item.id}');">✕</span></div><span class="label">${item.name}</span>`;
   box.appendChild(icon);
 }
 function openImportedItem(id){
   const item = importedItems.find(i => i.id === id);
   if(!item) return;
   if(item.type === 'website'){ openEdgeWindow(item.url, item.name); return; }
+  if(item.type === 'game'){ openWindow('store-window'); showStorePane('apps'); jumpToStoreApp(item.name); return; }
   if(item.type === 'image' || item.type === 'video'){
     const content = document.getElementById('import-viewer-content');
     if(item.thumb){
@@ -3118,6 +3197,88 @@ function removeImportedItem(id){
   renderImportedItemsList();
   renderRecentFilesInExplorer();
   saveImportedItems();
+}
+
+/* ============================================================
+   RECYCLE BIN — deleting an imported desktop icon moves it here
+   (not gone yet); Restore brings it back, Delete Permanently or
+   Empty Recycle Bin removes it for good.
+   ============================================================ */
+let recycleBinItems = [];
+function moveToRecycleBin(id){
+  const idx = importedItems.findIndex(i => i.id === id);
+  if(idx === -1) return;
+  const [item] = importedItems.splice(idx, 1);
+  recycleBinItems.push(item);
+  const icon = document.getElementById('dicon-' + id);
+  if(icon) icon.remove();
+  renderImportedItemsList();
+  renderRecentFilesInExplorer();
+  renderRecycleBinList();
+  saveImportedItems();
+  saveRecycleBin();
+  pushNotification('🗑️','Moved to Recycle Bin', item.name + ' can be restored from the Recycle Bin.', 'now');
+}
+function restoreFromRecycleBin(id){
+  const idx = recycleBinItems.findIndex(i => i.id === id);
+  if(idx === -1) return;
+  const [item] = recycleBinItems.splice(idx, 1);
+  importedItems.push(item);
+  renderDesktopIconForItem(item);
+  renderImportedItemsList();
+  renderRecentFilesInExplorer();
+  renderRecycleBinList();
+  saveImportedItems();
+  saveRecycleBin();
+  pushNotification(TYPE_ICON[item.type] || '📦','Restored', item.name + ' was restored to the desktop.', 'now');
+}
+function deletePermanently(id){
+  const item = recycleBinItems.find(i => i.id === id);
+  recycleBinItems = recycleBinItems.filter(i => i.id !== id);
+  renderRecycleBinList();
+  saveRecycleBin();
+  if(item) pushNotification('🗑️','Deleted permanently', item.name + ' was permanently deleted.', 'now');
+}
+function emptyRecycleBin(){
+  if(recycleBinItems.length === 0) return;
+  recycleBinItems = [];
+  renderRecycleBinList();
+  saveRecycleBin();
+  pushNotification('🗑️','Recycle Bin emptied','All items were permanently deleted.', 'now');
+}
+function renderRecycleBinList(){
+  const list = document.getElementById('recyclebin-list');
+  const empty = document.getElementById('recyclebin-empty');
+  const badge = document.getElementById('recyclebin-badge');
+  if(!list) return;
+  list.innerHTML = '';
+  if(badge){
+    if(recycleBinItems.length > 0){ badge.style.display = 'block'; badge.textContent = recycleBinItems.length; }
+    else badge.style.display = 'none';
+  }
+  if(recycleBinItems.length === 0){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  recycleBinItems.forEach(item => {
+    list.insertAdjacentHTML('beforeend', `<div class="sec-row"><div class="sl">${TYPE_ICON[item.type] || '📦'} ${item.name}<div class="sub-s">Added ${item.addedAt}</div></div>
+      <div style="display:flex; gap:6px;">
+        <button class="test-play-btn" onclick="restoreFromRecycleBin('${item.id}')">Restore</button>
+        <button class="test-play-btn" onclick="deletePermanently('${item.id}')">Delete Permanently</button>
+      </div></div>`);
+  });
+}
+async function saveRecycleBin(){
+  try{
+    const persistable = recycleBinItems.map(i => i.type === 'video' ? {...i, thumb:null} : i);
+    await window.storage.set('recycle-bin', JSON.stringify(persistable), false);
+  }catch(e){ /* storage unavailable */ }
+}
+async function loadRecycleBin(){
+  try{
+    const res = await window.storage.get('recycle-bin', false);
+    if(!res || !res.value) return;
+    recycleBinItems = JSON.parse(res.value);
+    renderRecycleBinList();
+  }catch(e){ recycleBinItems = recycleBinItems || []; }
 }
 function renderImportedItemsList(){
   const list = document.getElementById('imported-items-list');
