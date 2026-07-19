@@ -122,6 +122,7 @@ body.theme-light #wallpaper-layer{ filter:brightness(1.03); }
 #wallpaper-layer.wp-mono{ background:linear-gradient(160deg,#1a1c24,#0a0b10); }
 #wallpaper-layer.wp-mint{ background:linear-gradient(150deg,#0f4c4c,#1b8a72 50%,#8ee9c1 100%); }
 #wallpaper-layer.wp-dusk{ background:linear-gradient(150deg,#0d1b3f,#3457a0 55%,#7fb9e8 100%); }
+#wallpaper-layer.wp-custom{ background-color:#111; background-size:cover; background-position:center; background-repeat:no-repeat; }
 .win-logo-mark{ position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); width:200px; height:200px;
   display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:8px; filter:drop-shadow(0 18px 36px rgba(20,20,60,0.3)); pointer-events:none; }
 #wallpaper-layer.wp-mono .win-logo-mark, #wallpaper-layer.wp-sunset .win-logo-mark, #wallpaper-layer.wp-mint .win-logo-mark, #wallpaper-layer.wp-dusk .win-logo-mark{ display:none; }
@@ -435,6 +436,12 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
 .wtd-btn.done{ background:rgba(55,214,122,0.2); color:var(--ok-green); }
 .recovery-cta{ margin-top:10px; padding:12px 16px; border-radius:var(--radius-md); background:rgba(255,98,89,0.12); border:1px solid rgba(255,98,89,0.3); display:flex; align-items:center; justify-content:space-between; }
 .recovery-cta button{ font-size:12px; font-weight:700; padding:8px 16px; border-radius:999px; border:none; background:var(--err-red); color:#fff; cursor:pointer; }
+.tm-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 22px; margin-top:6px; }
+.tm-row{ display:flex; align-items:center; gap:10px; }
+.tm-row label{ width:120px; font-size:12.5px; font-weight:600; color:var(--ink-dim); flex:none; }
+.tm-row input[type=range]{ flex:1; accent-color:var(--accent); }
+.tm-row input[type=color]{ width:38px; height:28px; border:1px solid var(--glass-border); border-radius:8px; background:none; cursor:pointer; padding:0; }
+.tm-val{ width:44px; font-size:11px; color:var(--ink-faint); text-align:right; flex:none; }
 
 /* Store */
 .store-tabs{ display:flex; gap:6px; padding:12px 20px 0; }
@@ -854,7 +861,7 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
             </div>
           </div>
           <div style="margin-top:20px;">
-            <div class="sr-t" style="margin-bottom:8px;">Wallpaper <span style="font-weight:400; color:var(--ink-faint); font-size:11px;">— click to preview before applying</span></div>
+            <div class="sr-t" style="margin-bottom:8px;">Background <span style="font-weight:400; color:var(--ink-faint); font-size:11px;">— click a built-in wallpaper to preview before applying</span></div>
             <div class="wallpaper-grid">
               <div class="wp-swatch sw-aurora selected" data-wp="wp-aurora" onclick="previewWallpaper('wp-aurora', this)"></div>
               <div class="wp-swatch sw-sunset" data-wp="wp-sunset" onclick="previewWallpaper('wp-sunset', this)"></div>
@@ -868,6 +875,11 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
                 <button class="ed-btn secondary" style="flex:none; padding:8px 16px;" onclick="cancelWallpaperPreview()">Cancel</button>
                 <button class="ed-btn primary" style="flex:none; padding:8px 16px;" onclick="applyWallpaperPreview()">Apply wallpaper</button>
               </div>
+            </div>
+            <input type="file" id="custom-wallpaper-input" accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="handleCustomWallpaperUpload(this.files)">
+            <div style="display:flex; gap:10px; margin-top:14px;">
+              <button class="store-btn" style="width:auto; padding:9px 18px;" onclick="document.getElementById('custom-wallpaper-input').click()">Upload your own wallpaper</button>
+              <button class="ed-btn secondary" style="flex:none; padding:9px 18px;" onclick="restoreDefaultWallpaper()">Restore Default Wallpaper</button>
             </div>
           </div>
           <div style="margin-top:22px;">
@@ -888,6 +900,34 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
               <div class="accent-swatch" style="background:#ff8a3d;" onclick="setAccentColor('#ff8a3d','#ff5da2')" title="Orange"></div>
               <div class="accent-swatch" style="background:#b98bff;" onclick="setAccentColor('#b98bff','#6aa8ff')" title="Violet"></div>
             </div>
+          </div>
+          <div class="recovery-cta" style="background:rgba(106,168,255,0.1); border-color:rgba(106,168,255,0.3); margin-top:22px;">
+            <div><div class="sr-t">Taskbar Maker</div><div class="sr-s">Visually customize height, radius, blur, borders, colors, spacing, and alignment</div></div>
+            <button style="background:var(--accent); color:#0e1030;" onclick="showSettingsPane('taskbarmaker')">Open</button>
+          </div>
+        </div>
+
+        <div class="settings-pane" id="pane-taskbarmaker">
+          <h3>Taskbar Maker</h3><p class="sub">Every change previews live on the taskbar below and saves automatically.</p>
+          <div class="tm-grid">
+            <div class="tm-row"><label>Height</label><input type="range" id="tm-height" min="40" max="88" value="60" oninput="tmUpdate()"><span class="tm-val" id="tm-height-val">60px</span></div>
+            <div class="tm-row"><label>Corner radius</label><input type="range" id="tm-radius" min="0" max="40" value="28" oninput="tmUpdate()"><span class="tm-val" id="tm-radius-val">28px</span></div>
+            <div class="tm-row"><label>Transparency</label><input type="range" id="tm-opacity" min="10" max="100" value="70" oninput="tmUpdate()"><span class="tm-val" id="tm-opacity-val">70%</span></div>
+            <div class="tm-row"><label>Blur strength</label><input type="range" id="tm-blur" min="0" max="40" value="24" oninput="tmUpdate()"><span class="tm-val" id="tm-blur-val">24px</span></div>
+            <div class="tm-row"><label>Icon spacing</label><input type="range" id="tm-spacing" min="0" max="20" value="6" oninput="tmUpdate()"><span class="tm-val" id="tm-spacing-val">6px</span></div>
+            <div class="tm-row"><label>Icon size</label><input type="range" id="tm-iconsize" min="28" max="64" value="44" oninput="tmUpdate()"><span class="tm-val" id="tm-iconsize-val">44px</span></div>
+            <div class="tm-row"><label>Border thickness</label><input type="range" id="tm-borderwidth" min="0" max="6" value="1" oninput="tmUpdate()"><span class="tm-val" id="tm-borderwidth-val">1px</span></div>
+            <div class="tm-row"><label>Border color</label><input type="color" id="tm-bordercolor" value="#ffffff" oninput="tmUpdate()"></div>
+            <div class="tm-row"><label>Background color</label><input type="color" id="tm-bgcolor" value="#141626" oninput="tmUpdate()"></div>
+            <div class="tm-row"><label>Shadow</label><div class="toggle on" id="tm-shadow" onclick="tmToggle(this,'tmUpdate')"></div></div>
+            <div class="tm-row"><label>Border</label><div class="toggle" id="tm-border" onclick="tmToggle(this,'tmUpdate')"></div></div>
+            <div class="tm-row"><label>Use accent color</label><div class="toggle" id="tm-useaccent" onclick="tmToggle(this,'tmUpdate')"></div></div>
+            <div class="tm-row"><label>Alignment</label>
+              <div class="seg"><div class="seg-btn active" id="tm-align-center" onclick="tmSetAlign('center')">Center</div><div class="seg-btn" id="tm-align-left" onclick="tmSetAlign('left')">Left</div></div>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:18px;">
+            <button class="ed-btn secondary" style="flex:none; padding:9px 18px;" onclick="tmReset()">Reset to default</button>
           </div>
         </div>
 
@@ -943,9 +983,14 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
         <div class="settings-pane" id="pane-import">
           <h3>Import</h3><p class="sub">Add your own files, images, or a website onto the Windows 12 Concept desktop. Everything is scanned first — unsafe or self-referential items are blocked.</p>
           <input type="file" id="import-file-input" multiple style="display:none" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.md,.rtf,.exe,.bat,.cmd,.html,.htm" onchange="handleImportFiles(this.files)">
+          <input type="file" id="import-desktop-input" multiple style="display:none" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.md,.rtf,.exe,.bat,.cmd,.html,.htm" onchange="handleImportFiles(this.files)">
           <div class="recovery-cta" style="background:rgba(106,168,255,0.1); border-color:rgba(106,168,255,0.3);">
             <div><div class="sr-t">Add Files / Images / More</div><div class="sr-s">Opens your system's file picker. Supports images, videos, and documents.</div></div>
             <button style="background:var(--accent); color:#0e1030;" onclick="document.getElementById('import-file-input').click()">Add</button>
+          </div>
+          <div class="recovery-cta" style="background:rgba(185,139,255,0.1); border-color:rgba(185,139,255,0.3); margin-top:10px;">
+            <div><div class="sr-t">Add apps from your desktop</div><div class="sr-s">A browser can't silently scan your real desktop — this opens the same file picker so you can select the files yourself. Anything that looks like a game install gets flagged automatically.</div></div>
+            <button style="background:var(--accent); color:#0e1030;" onclick="document.getElementById('import-desktop-input').click()">Scan &amp; Add</button>
           </div>
           <div class="set-row" style="align-items:flex-start; gap:10px;">
             <div style="flex:1;">
@@ -1344,11 +1389,12 @@ window.addEventListener('load', () => {
   runBootSequence(3600, true, () => { showScreen('lock-screen'); updateLockClock(); });
 });
 
-function unlockToDesktop(){
+async function unlockToDesktop(){
   clearPendingTimers();
   showScreen('desktop-screen');
   buildAllDynamicContent();
-  loadUserPrefs();
+  await loadUserPrefs();
+  loadCustomWallpaper(); // applied after prefs so a saved custom photo wins over a built-in wallpaper class
   loadImportedItems();
 }
 
@@ -1907,6 +1953,211 @@ function setAccentColor(c1, c2){
   document.querySelectorAll('.accent-swatch').forEach(s => s.classList.toggle('selected', s.style.background === c1 || s.style.backgroundColor === c1));
   saveUserPrefs();
 }
+
+/* ============================================================
+   TASKBAR MAKER — live, saved customization layered on top of
+   the existing taskbar theme system (Translucent/Dark/.../Moga3).
+   Everything here is applied as inline styles on #taskbar and its
+   children, which always win over the class-based theme rules, so
+   no existing theme CSS has to change and "Reset" cleanly clears
+   back to whatever theme is selected.
+   ============================================================ */
+const TM_DEFAULTS = {
+  height:60, radius:28, opacity:70, blur:24, spacing:6, iconsize:44,
+  borderwidth:1, bordercolor:'#ffffff', bgcolor:'#141626',
+  shadow:true, border:false, useaccent:false, align:'center'
+};
+let tmState = {...TM_DEFAULTS};
+
+function hexToRgba(hex, alphaPct){
+  const h = (hex||'#141626').replace('#','');
+  const r = parseInt(h.substring(0,2),16)||0, g = parseInt(h.substring(2,4),16)||0, b = parseInt(h.substring(4,6),16)||0;
+  return `rgba(${r},${g},${b},${Math.max(0,Math.min(100,alphaPct))/100})`;
+}
+function tmToggle(el){
+  el.classList.toggle('on');
+  tmUpdate();
+}
+function tmSetAlign(v){
+  tmState.align = v;
+  document.getElementById('tm-align-center').classList.toggle('active', v==='center');
+  document.getElementById('tm-align-left').classList.toggle('active', v==='left');
+  tmUpdate();
+}
+function tmReadInputs(){
+  tmState.height = +document.getElementById('tm-height').value;
+  tmState.radius = +document.getElementById('tm-radius').value;
+  tmState.opacity = +document.getElementById('tm-opacity').value;
+  tmState.blur = +document.getElementById('tm-blur').value;
+  tmState.spacing = +document.getElementById('tm-spacing').value;
+  tmState.iconsize = +document.getElementById('tm-iconsize').value;
+  tmState.borderwidth = +document.getElementById('tm-borderwidth').value;
+  tmState.bordercolor = document.getElementById('tm-bordercolor').value;
+  tmState.bgcolor = document.getElementById('tm-bgcolor').value;
+  tmState.shadow = document.getElementById('tm-shadow').classList.contains('on');
+  tmState.border = document.getElementById('tm-border').classList.contains('on');
+  tmState.useaccent = document.getElementById('tm-useaccent').classList.contains('on');
+}
+function tmApply(){
+  const tb = document.getElementById('taskbar');
+  if(!tb) return;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#6aa8ff';
+  const bg = tmState.useaccent ? hexToRgba(accent, tmState.opacity) : hexToRgba(tmState.bgcolor, tmState.opacity);
+  tb.style.background = bg;
+  tb.style.backdropFilter = `blur(${tmState.blur}px) saturate(1.5)`;
+  tb.style.webkitBackdropFilter = tb.style.backdropFilter;
+  tb.style.borderRadius = tmState.radius + 'px';
+  tb.style.minHeight = tmState.height + 'px';
+  tb.style.boxShadow = tmState.shadow ? '0 14px 40px rgba(15,15,45,0.28), inset 0 1px 0 rgba(255,255,255,0.06)' : 'none';
+  tb.style.border = tmState.border ? `${tmState.borderwidth}px solid ${tmState.bordercolor}` : 'none';
+  const vertical = document.body.classList.contains('tb-pos-left') || document.body.classList.contains('tb-pos-right');
+  if(!vertical){
+    tb.style.justifyContent = tmState.align === 'left' ? 'flex-start' : 'center';
+    tb.style.left = tmState.align === 'left' ? '14px' : '50%';
+    tb.style.transform = tmState.align === 'left' ? 'none' : 'translateX(-50%)';
+  }
+  document.querySelectorAll('#taskbar .tb-group').forEach(g => g.style.gap = tmState.spacing + 'px');
+  document.querySelectorAll('#taskbar .tb-btn').forEach(b => {
+    b.style.width = tmState.iconsize + 'px';
+    b.style.height = tmState.iconsize + 'px';
+    b.style.fontSize = Math.round(tmState.iconsize*0.43) + 'px';
+  });
+  const pill = document.getElementById('search-pill');
+  if(pill) pill.style.height = tmState.iconsize + 'px';
+}
+function tmSyncReadouts(){
+  document.getElementById('tm-height-val').textContent = tmState.height+'px';
+  document.getElementById('tm-radius-val').textContent = tmState.radius+'px';
+  document.getElementById('tm-opacity-val').textContent = tmState.opacity+'%';
+  document.getElementById('tm-blur-val').textContent = tmState.blur+'px';
+  document.getElementById('tm-spacing-val').textContent = tmState.spacing+'px';
+  document.getElementById('tm-iconsize-val').textContent = tmState.iconsize+'px';
+  document.getElementById('tm-borderwidth-val').textContent = tmState.borderwidth+'px';
+}
+function tmUpdate(){
+  tmReadInputs();
+  tmSyncReadouts();
+  tmApply();
+  saveUserPrefs();
+}
+function tmSetInputsFromState(){
+  document.getElementById('tm-height').value = tmState.height;
+  document.getElementById('tm-radius').value = tmState.radius;
+  document.getElementById('tm-opacity').value = tmState.opacity;
+  document.getElementById('tm-blur').value = tmState.blur;
+  document.getElementById('tm-spacing').value = tmState.spacing;
+  document.getElementById('tm-iconsize').value = tmState.iconsize;
+  document.getElementById('tm-borderwidth').value = tmState.borderwidth;
+  document.getElementById('tm-bordercolor').value = tmState.bordercolor;
+  document.getElementById('tm-bgcolor').value = tmState.bgcolor;
+  document.getElementById('tm-shadow').classList.toggle('on', tmState.shadow);
+  document.getElementById('tm-border').classList.toggle('on', tmState.border);
+  document.getElementById('tm-useaccent').classList.toggle('on', tmState.useaccent);
+  document.getElementById('tm-align-center').classList.toggle('active', tmState.align !== 'left');
+  document.getElementById('tm-align-left').classList.toggle('active', tmState.align === 'left');
+  tmSyncReadouts();
+}
+function tmLoadState(saved){
+  tmState = {...TM_DEFAULTS, ...saved};
+  tmSetInputsFromState();
+  tmApply();
+}
+function tmReset(){
+  tmState = {...TM_DEFAULTS};
+  tmSetInputsFromState();
+  tmApply();
+  saveUserPrefs();
+  pushNotification('📌','Taskbar Maker','Reset to default.', 'now');
+}
+
+/* ============================================================
+   UPLOAD YOUR OWN WALLPAPER
+   Reads a local image file (never uploaded anywhere), downsizes it
+   on a canvas so it stays well under the storage limit, applies it
+   immediately, and saves it so it survives a refresh.
+   ============================================================ */
+function handleCustomWallpaperUpload(files){
+  const file = files && files[0];
+  const input = document.getElementById('custom-wallpaper-input');
+  if(!file){ if(input) input.value=''; return; }
+  const okTypes = ['image/png','image/jpeg','image/jpg','image/webp','image/gif'];
+  if(!okTypes.includes(file.type)){
+    pushNotification('⚠️','Unsupported file','Please choose a PNG, JPG, JPEG, WEBP, or GIF image.', 'now');
+    if(input) input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const rawDataUrl = e.target.result;
+    // GIFs lose animation if redrawn to canvas, so keep those as-is;
+    // everything else gets downscaled to keep storage small and fast.
+    if(file.type === 'image/gif'){
+      applyCustomWallpaper(rawDataUrl);
+      saveCustomWallpaper(rawDataUrl);
+      pushNotification('🖼️','Wallpaper updated.','', 'now');
+      if(input) input.value = '';
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 1920;
+      let w = img.width, h = img.height;
+      if(w > maxDim || h > maxDim){
+        const scale = maxDim / Math.max(w, h);
+        w = Math.round(w*scale); h = Math.round(h*scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const finalUrl = canvas.toDataURL('image/jpeg', 0.85);
+      applyCustomWallpaper(finalUrl);
+      saveCustomWallpaper(finalUrl);
+      pushNotification('🖼️','Wallpaper updated.','', 'now');
+      if(input) input.value = '';
+    };
+    img.src = rawDataUrl;
+  };
+  reader.readAsDataURL(file);
+}
+function applyCustomWallpaper(dataUrl){
+  const layer = document.getElementById('wallpaper-layer');
+  layer.className = 'wp-custom';
+  layer.innerHTML = ''; // no fold decorations / logo mark over a user's own photo
+  layer.style.backgroundImage = `url("${dataUrl}")`;
+  layer.style.backgroundSize = 'cover';
+  layer.style.backgroundPosition = 'center';
+  layer.style.backgroundRepeat = 'no-repeat';
+  document.querySelectorAll('.wp-swatch').forEach(s => s.classList.remove('selected'));
+  const lockWp = document.getElementById('lock-wallpaper');
+  if(lockWp) lockWp.className = 'wp-custom', lockWp.style.backgroundImage = layer.style.backgroundImage,
+    lockWp.style.backgroundSize = 'cover', lockWp.style.backgroundPosition = 'center', lockWp.style.backgroundRepeat = 'no-repeat';
+}
+function restoreDefaultWallpaper(){
+  const layer = document.getElementById('wallpaper-layer');
+  layer.style.backgroundImage = '';
+  layer.style.backgroundSize = '';
+  layer.style.backgroundPosition = '';
+  layer.style.backgroundRepeat = '';
+  const el = document.querySelector('.wp-swatch[data-wp="wp-aurora"]');
+  setWallpaper('wp-aurora', el);
+  clearCustomWallpaper();
+  pushNotification('🖼️','Wallpaper restored','Reverted to the default built-in wallpaper.', 'now');
+}
+async function saveCustomWallpaper(dataUrl){
+  try{ await window.storage.set('custom-wallpaper', dataUrl, false); }
+  catch(e){ /* storage unavailable — the wallpaper still applies for this session */ }
+}
+async function loadCustomWallpaper(){
+  try{
+    const res = await window.storage.get('custom-wallpaper', false);
+    if(res && res.value) applyCustomWallpaper(res.value);
+  }catch(e){ /* no saved custom wallpaper yet, or storage unavailable */ }
+}
+async function clearCustomWallpaper(){
+  try{ await window.storage.delete('custom-wallpaper', false); }
+  catch(e){ /* nothing to clear */ }
+}
+
 function setTaskbarPos(pos, el){
   document.body.classList.remove('tb-pos-top','tb-pos-bottom','tb-pos-left','tb-pos-right');
   document.body.classList.add('tb-pos-'+pos);
@@ -2603,6 +2854,7 @@ async function saveUserPrefs(){
       accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
       accent2: getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim(),
       soundVariants: SOUND_VARIANTS,
+      taskbarMaker: tmState,
     };
     await window.storage.set('user-prefs', JSON.stringify(prefs), false);
   }catch(e){ /* storage unavailable — preferences just won't persist */ }
@@ -2613,7 +2865,7 @@ async function loadUserPrefs(){
     if(!res || !res.value) return;
     const p = JSON.parse(res.value);
     if(p.theme) setTheme(p.theme);
-    if(p.wallpaper){
+    if(p.wallpaper && p.wallpaper !== 'wp-custom'){
       const el = document.querySelector('.wp-swatch[data-wp="'+p.wallpaper+'"]');
       setWallpaper(p.wallpaper, el);
     }
@@ -2631,11 +2883,16 @@ async function loadUserPrefs(){
     }
     if(p.accent && p.accent2) setAccentColor(p.accent, p.accent2);
     if(p.soundVariants) SOUND_VARIANTS = p.soundVariants;
+    if(p.taskbarMaker) tmLoadState(p.taskbarMaker);
     buildSoundScanList();
   }catch(e){ /* no saved prefs yet, or storage unavailable */ }
 }
 async function saveImportedItems(){
-  try{ await window.storage.set('imported-items', JSON.stringify(importedItems), false); }
+  try{
+    // Video thumbs are blob: URLs that die with the page — never worth persisting.
+    const persistable = importedItems.map(i => i.type === 'video' ? {...i, thumb:null} : i);
+    await window.storage.set('imported-items', JSON.stringify(persistable), false);
+  }
   catch(e){ /* storage unavailable */ }
 }
 async function loadImportedItems(){
@@ -2697,6 +2954,18 @@ function closeImportModal(advanceQueue){
   if(advanceQueue) scheduleTimer(processNextImport, 200);
 }
 
+const KNOWN_GAMES = {
+  roblox: 'Roblox', minecraft: 'Minecraft', fortnite: 'Fortnite', valorant: 'Valorant',
+  'among us': 'Among Us', amongus: 'Among Us', 'counter-strike': 'Counter-Strike', csgo: 'Counter-Strike',
+  'league of legends': 'League of Legends', leagueoflegends: 'League of Legends', gta: 'Grand Theft Auto',
+  minigames: 'Mini Games',
+};
+function detectKnownGame(name){
+  const n = name.toLowerCase();
+  for(const key in KNOWN_GAMES){ if(n.includes(key)) return KNOWN_GAMES[key]; }
+  return null;
+}
+
 function scanAndPreviewFile(file){
   const name = file.name;
   const ext = (name.split('.').pop() || '').toLowerCase();
@@ -2707,6 +2976,15 @@ function scanAndPreviewFile(file){
   `);
   setTimeout(() => {
     if(EXEC_EXTENSIONS.includes(ext)){
+      const game = detectKnownGame(name);
+      if(game){
+        showImportModal(`
+          <h3>Game detected: ${game}</h3>
+          <p>Windows 12 Concept can't run real executables — .${ext} files are never launched here. A shortcut has been added instead, linking to ${game} in the Store.</p>
+          <div class="ed-actions"><button class="ed-btn primary" onclick="addGameShortcut('${game.replace(/'/g,"\\'")}'); closeImportModal(true);">Add shortcut</button></div>
+        `);
+        return;
+      }
       showImportModal(`
         <h3>Cannot run this file.</h3>
         <p>This OS does not support .${ext} files.<br>Imported files are never automatically run — only safe preview and simulation are allowed.</p>
@@ -2758,7 +3036,7 @@ function confirmImportAdd(){
     name: data.name,
     type: data.type,
     ext: data.ext,
-    thumb: data.type === 'image' ? data.dataUrl : null, // only images are small/safe enough to persist
+    thumb: (data.type === 'image' || data.type === 'video') ? data.dataUrl : null, // images persist; video blob URLs are session-only (stripped before saving)
     url: data.url || null,
     addedAt: new Date().toLocaleString(),
   };
