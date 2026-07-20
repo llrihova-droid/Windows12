@@ -895,6 +895,7 @@ body.wbc-invisible .wbc-reveal-tab{ display:flex; }
         <div class="settings-nav-item" data-pane="devices" onclick="showSettingsPane('devices')">🔌 Devices</div>
         <div class="settings-nav-item" data-pane="import" onclick="showSettingsPane('import')">📥 Import</div>
         <div class="settings-nav-item" data-pane="recovery" onclick="showSettingsPane('recovery')">🛠️ Recovery</div>
+        <div class="settings-nav-item" data-pane="recorder" onclick="showSettingsPane('recorder')">🎥 Screen Recorder</div>
         <div class="settings-nav-item" data-pane="about" onclick="showSettingsPane('about')">ℹ️ About</div>
       </div>
       <div class="settings-content">
@@ -1084,6 +1085,19 @@ body.wbc-invisible .wbc-reveal-tab{ display:flex; }
             <div><div class="sr-t">Advanced startup</div><div class="sr-s">Restart into recovery mode to access repair options and Safe Mode</div></div>
             <button onclick="enterRecovery()">Restart now</button>
           </div>
+        </div>
+
+        <div class="settings-pane" id="pane-recorder">
+          <h3>Screen Recorder</h3><p class="sub">Record and download a 15-second video of your PC. This uses your browser's real screen-share permission — when you click Record, pick "This tab" to capture the Windows 12 Concept simulator itself.</p>
+          <div class="recovery-cta" style="background:rgba(55,214,122,0.1); border-color:rgba(55,214,122,0.3); align-items:center;">
+            <div><div class="sr-t">Record and download 15 second recorded video to your PC</div><div class="sr-s" id="rec-status-text">Not recording.</div></div>
+            <div style="display:flex; gap:8px; flex:none;">
+              <button id="rec-start-btn" style="background:var(--ok-green); color:#0a1f10; font-weight:700; border:none; padding:9px 18px; border-radius:999px; cursor:pointer;" onclick="startScreenRecording()">Record</button>
+              <button id="rec-pause-btn" style="display:none; background:var(--tile-bg-hover); color:var(--ink); border:none; padding:9px 16px; border-radius:999px; cursor:pointer;" onclick="togglePauseRecording()">Pause Recording</button>
+              <button id="rec-stop-btn" style="display:none; background:var(--err-red); color:#fff; border:none; padding:9px 16px; border-radius:999px; cursor:pointer;" onclick="stopScreenRecording()">Stop Recording</button>
+            </div>
+          </div>
+          <div id="rec-timer" style="display:none; margin-top:12px; font-size:13px; font-weight:700; color:var(--ink-dim);">Recording: <span id="rec-seconds">0</span>s / 15s</div>
         </div>
 
         <div class="settings-pane" id="pane-about">
