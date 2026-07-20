@@ -369,6 +369,51 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
 .win-dots{ display:flex; gap:8px; }
 .win-dots span{ width:12px; height:12px; border-radius:50%; cursor:pointer; }
 .c-min{ background:#ffd166; } .c-max{ background:#37d67a; } .c-close{ background:#ff6259; }
+
+/* ===================== WINDOW BAR CUSTOMIZER ===================== */
+.wbc-dots{ gap:4px; }
+.wb-btn{ width:auto; height:auto; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; font-family:'Inter Tight',sans-serif;
+  background:var(--tile-bg); color:var(--ink-dim); display:flex; align-items:center; justify-content:center; transition:background .12s ease, color .12s ease; }
+.wb-btn:hover{ background:var(--tile-bg-hover); color:var(--ink); }
+.wb-btn.wb-close:hover{ background:var(--err-red); color:#fff; }
+
+/* Style: Liquid Glass Blur (default look, just heavier blur/highlight) */
+body.wbc-glass .win-titlebar{ backdrop-filter:blur(30px) saturate(1.8); background:rgba(255,255,255,0.05); }
+
+/* Style: Matter (flat, opaque, no blur) */
+body.wbc-matter .app-window{ backdrop-filter:none!important; background:#1c1e28!important; }
+body.wbc-matter .win-titlebar{ background:#20222c; }
+body.wbc-matter .wb-btn{ border-radius:4px; }
+
+/* Style: Animated Green Jelly */
+body.wbc-jelly .app-window{ animation:jelly-wobble 3.2s ease-in-out infinite; border-color:rgba(80,230,140,0.4)!important;
+  box-shadow:0 30px 70px rgba(10,10,35,0.4), 0 0 0 1px rgba(80,230,140,0.25), inset 0 1px 0 var(--glass-hl)!important; }
+body.wbc-jelly .win-titlebar{ background:linear-gradient(120deg, rgba(80,230,140,0.16), rgba(60,200,120,0.08)); }
+@keyframes jelly-wobble{ 0%,100%{ border-radius:20px; } 25%{ border-radius:24px 16px 22px 18px; } 50%{ border-radius:16px 22px 18px 24px; } 75%{ border-radius:22px 18px 24px 16px; } }
+
+/* Style: Invisible — window body fully hidden, only a small reveal tab remains */
+body.wbc-invisible .app-window.open{ opacity:0; pointer-events:none; }
+body.wbc-invisible .app-window.open .wbc-reveal-tab{ opacity:1; pointer-events:auto; }
+.wbc-reveal-tab{ display:none; position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:50%;
+  background:var(--accent); color:#0e1030; font-weight:800; font-size:15px; align-items:center; justify-content:center;
+  cursor:pointer; z-index:10; opacity:0; }
+body.wbc-invisible .wbc-reveal-tab{ display:flex; }
+
+/* ===================== TO8BTERMINAL ===================== */
+#terminal-window{ font-family:'Consolas','Courier New',monospace; }
+#terminal-output{ flex:1; overflow-y:auto; padding:14px 16px; font-size:12.5px; line-height:1.6; color:#c9f7d1; cursor:text; }
+#terminal-output .t-line{ white-space:pre-wrap; word-break:break-word; }
+#terminal-output .t-cmd{ color:#7fd8ff; }
+#terminal-output .t-err{ color:#ff8a80; }
+#terminal-output .t-ok{ color:#7fffa0; }
+#terminal-output .t-warn{ color:#ffd166; }
+#terminal-inputline{ display:flex; align-items:center; gap:8px; padding:10px 16px; border-top:1px solid rgba(255,255,255,0.08); }
+#terminal-prompt{ color:#7fd8ff; font-family:inherit; font-size:12.5px; flex:none; }
+#terminal-input{ flex:1; background:transparent; border:none; outline:none; color:#c9f7d1; font-family:inherit; font-size:12.5px; }
+
+/* Unclickable veil — triggered by "C:windows12/unclickable" */
+#unclickable-veil{ position:absolute; inset:0; z-index:500; display:none; cursor:not-allowed; background:transparent; }
+#unclickable-veil.active{ display:block; }
 .win-body{ flex:1; display:flex; overflow:hidden; }
 
 /* Settings */
@@ -674,6 +719,7 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
     <div class="d-icon" onclick="enterRecovery()"><div class="glyph">🛠️</div><span class="label">Recovery (demo)</span></div>
     <div class="d-icon" onclick="openWindow('security-window')"><div class="glyph">🛡️</div><span class="label">Windows 12 Security</span></div>
     <div class="d-icon" onclick="openWindow('recyclebin-window')"><div class="glyph" style="position:relative;">🗑️<span id="recyclebin-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:var(--err-red); color:#fff; font-size:9px; font-weight:700; border-radius:999px; padding:1px 5px;">0</span></div><span class="label">Recycle Bin</span></div>
+    <div class="d-icon" onclick="openTerminal()"><div class="glyph">⌨️</div><span class="label">To8bTerminal</span></div>
   </div>
 
   <!-- Top bar -->
@@ -712,6 +758,7 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
       <div class="app-tile" onclick="openWindow('security-window')"><div class="ic">🛡️</div><div class="tl">Security</div></div>
       <div class="app-tile" onclick="openWindow('file-explorer-window')"><div class="ic">🗂️</div><div class="tl">File Explorer</div></div>
       <div class="app-tile" onclick="openWindow('recyclebin-window')"><div class="ic">🗑️</div><div class="tl">Recycle Bin</div></div>
+      <div class="app-tile" onclick="openTerminal()"><div class="ic">⌨️</div><div class="tl">To8bTerminal</div></div>
       <div class="app-tile" onclick="launchLegacyTool()"><div class="ic">🧩</div><div class="tl">Legacy Tool</div></div>
       <div class="app-tile" onclick="launchApp('beta')"><div class="ic">🧪</div><div class="tl">Beta App</div></div>
       <div class="app-tile" onclick="launchApp('mail', false)"><div class="ic">📧</div><div class="tl">Mail</div></div>
@@ -827,8 +874,9 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
   <div id="settings-window" class="app-window" data-wm-title="Settings" data-wm-icon="⚙️">
     <div class="win-titlebar" onmousedown="wmStartDrag(event,'settings-window')">
       <div class="tb-left">⚙️ Settings</div>
-      <div class="win-dots"><span class="c-min" onclick="wmMinimize('settings-window')"></span><span class="c-max" onclick="wmToggleMaximize('settings-window')"></span><span class="c-close" onclick="wmClose('settings-window')"></span></div>
+      <div class="win-dots wbc-dots" id="wbc-dots-settings-window"><span class="wb-btn wb-min" onclick="wmMinimize('settings-window')" title="Minimize">⌜⌟</span><span class="wb-btn wb-max" onclick="wmToggleMaximize('settings-window')" title="Maximize">▢</span><span class="wb-btn wb-close" onclick="wmClose('settings-window')" title="Close">X</span></div>
     </div>
+    <div class="wbc-reveal-tab" id="wbc-reveal-settings-window" onclick="wbcReveal('settings-window')" title="Show window">+</div>
     <div class="wm-resize-handle n" onmousedown="wmStartResize(event,'settings-window','n')"></div>
     <div class="wm-resize-handle s" onmousedown="wmStartResize(event,'settings-window','s')"></div>
     <div class="wm-resize-handle e" onmousedown="wmStartResize(event,'settings-window','e')"></div>
@@ -911,6 +959,23 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
           <div class="recovery-cta" style="background:rgba(106,168,255,0.1); border-color:rgba(106,168,255,0.3); margin-top:22px;">
             <div><div class="sr-t">Taskbar Maker</div><div class="sr-s">Visually customize height, radius, blur, borders, colors, spacing, and alignment</div></div>
             <button style="background:var(--accent); color:#0e1030;" onclick="showSettingsPane('taskbarmaker')">Open</button>
+          </div>
+          <div class="recovery-cta" style="background:rgba(185,139,255,0.1); border-color:rgba(185,139,255,0.3); margin-top:10px;">
+            <div><div class="sr-t">Window Bar Customizer</div><div class="sr-s">Change window controls to ⌜⌟ / ▢ / X, and pick a titlebar style</div></div>
+            <button style="background:var(--accent); color:#0e1030;" onclick="showSettingsPane('windowbar')">Open</button>
+          </div>
+        </div>
+
+        <div class="settings-pane" id="pane-windowbar">
+          <h3>Window Bar Customizer</h3><p class="sub">Applies to every open window (Settings, Store, Security, File Explorer, Recycle Bin, and the terminal). Controls are already ⌜⌟ / ▢ / X.</p>
+          <div class="theme-pick-row" style="grid-template-columns:repeat(4,1fr);">
+            <div class="theme-swatch wbc-style-swatch" data-wbc="glass" onclick="setWindowBarStyle('glass')"><div class="theme-preview tp-translucent"></div>Liquid Glass Blur</div>
+            <div class="theme-swatch wbc-style-swatch" data-wbc="matter" onclick="setWindowBarStyle('matter')"><div class="theme-preview tp-matter"></div>Matter</div>
+            <div class="theme-swatch wbc-style-swatch" data-wbc="jelly" onclick="setWindowBarStyle('jelly')"><div class="theme-preview" style="background:linear-gradient(120deg,#4ee68c,#2ea862);"></div>Animated Green Jelly</div>
+            <div class="theme-swatch wbc-style-swatch" data-wbc="invisible" onclick="setWindowBarStyle('invisible')"><div class="theme-preview" style="background:repeating-linear-gradient(45deg,#333,#333 4px,#222 4px,#222 8px);"></div>Invisible</div>
+          </div>
+          <div class="set-row" style="margin-top:16px;">
+            <div><div class="sr-t">About Invisible mode</div><div class="sr-s">Open windows vanish except for a small + tab (top-right) to bring them back. While it's on, the focused window also responds to real − (hide), F (fullscreen), and X (close) key presses.</div></div>
           </div>
         </div>
 
@@ -1034,8 +1099,9 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
   <div id="store-window" class="app-window" data-wm-title="Microsoft Store" data-wm-icon="🛍️">
     <div class="win-titlebar" onmousedown="wmStartDrag(event,'store-window')">
       <div class="tb-left">🛍️ Microsoft Store (concept)</div>
-      <div class="win-dots"><span class="c-min" onclick="wmMinimize('store-window')"></span><span class="c-max" onclick="wmToggleMaximize('store-window')"></span><span class="c-close" onclick="wmClose('store-window')"></span></div>
+      <div class="win-dots wbc-dots" id="wbc-dots-store-window"><span class="wb-btn wb-min" onclick="wmMinimize('store-window')" title="Minimize">⌜⌟</span><span class="wb-btn wb-max" onclick="wmToggleMaximize('store-window')" title="Maximize">▢</span><span class="wb-btn wb-close" onclick="wmClose('store-window')" title="Close">X</span></div>
     </div>
+    <div class="wbc-reveal-tab" id="wbc-reveal-store-window" onclick="wbcReveal('store-window')" title="Show window">+</div>
     <div class="wm-resize-handle n" onmousedown="wmStartResize(event,'store-window','n')"></div>
     <div class="wm-resize-handle s" onmousedown="wmStartResize(event,'store-window','s')"></div>
     <div class="wm-resize-handle e" onmousedown="wmStartResize(event,'store-window','e')"></div>
@@ -1062,8 +1128,9 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
   <div id="security-window" class="app-window" data-wm-title="Windows 12 Security" data-wm-icon="🛡️">
     <div class="win-titlebar" onmousedown="wmStartDrag(event,'security-window')">
       <div class="tb-left">🛡️ Windows 12 Security</div>
-      <div class="win-dots"><span class="c-min" onclick="wmMinimize('security-window')"></span><span class="c-max" onclick="wmToggleMaximize('security-window')"></span><span class="c-close" onclick="wmClose('security-window')"></span></div>
+      <div class="win-dots wbc-dots" id="wbc-dots-security-window"><span class="wb-btn wb-min" onclick="wmMinimize('security-window')" title="Minimize">⌜⌟</span><span class="wb-btn wb-max" onclick="wmToggleMaximize('security-window')" title="Maximize">▢</span><span class="wb-btn wb-close" onclick="wmClose('security-window')" title="Close">X</span></div>
     </div>
+    <div class="wbc-reveal-tab" id="wbc-reveal-security-window" onclick="wbcReveal('security-window')" title="Show window">+</div>
     <div class="wm-resize-handle n" onmousedown="wmStartResize(event,'security-window','n')"></div>
     <div class="wm-resize-handle s" onmousedown="wmStartResize(event,'security-window','s')"></div>
     <div class="wm-resize-handle e" onmousedown="wmStartResize(event,'security-window','e')"></div>
@@ -1106,8 +1173,9 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
   <div id="file-explorer-window" class="app-window" data-wm-title="File Explorer" data-wm-icon="🗂️">
     <div class="win-titlebar" onmousedown="wmStartDrag(event,'file-explorer-window')">
       <div class="tb-left">🗂️ File Explorer</div>
-      <div class="win-dots"><span class="c-min" onclick="wmMinimize('file-explorer-window')"></span><span class="c-max" onclick="wmToggleMaximize('file-explorer-window')"></span><span class="c-close" onclick="wmClose('file-explorer-window')"></span></div>
+      <div class="win-dots wbc-dots" id="wbc-dots-file-explorer-window"><span class="wb-btn wb-min" onclick="wmMinimize('file-explorer-window')" title="Minimize">⌜⌟</span><span class="wb-btn wb-max" onclick="wmToggleMaximize('file-explorer-window')" title="Maximize">▢</span><span class="wb-btn wb-close" onclick="wmClose('file-explorer-window')" title="Close">X</span></div>
     </div>
+    <div class="wbc-reveal-tab" id="wbc-reveal-file-explorer-window" onclick="wbcReveal('file-explorer-window')" title="Show window">+</div>
     <div class="wm-resize-handle n" onmousedown="wmStartResize(event,'file-explorer-window','n')"></div>
     <div class="wm-resize-handle s" onmousedown="wmStartResize(event,'file-explorer-window','s')"></div>
     <div class="wm-resize-handle e" onmousedown="wmStartResize(event,'file-explorer-window','e')"></div>
@@ -1151,8 +1219,9 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
   <div id="recyclebin-window" class="app-window" data-wm-title="Recycle Bin" data-wm-icon="🗑️">
     <div class="win-titlebar" onmousedown="wmStartDrag(event,'recyclebin-window')">
       <div class="tb-left">🗑️ Recycle Bin</div>
-      <div class="win-dots"><span class="c-min" onclick="wmMinimize('recyclebin-window')"></span><span class="c-max" onclick="wmToggleMaximize('recyclebin-window')"></span><span class="c-close" onclick="wmClose('recyclebin-window')"></span></div>
+      <div class="win-dots wbc-dots" id="wbc-dots-recyclebin-window"><span class="wb-btn wb-min" onclick="wmMinimize('recyclebin-window')" title="Minimize">⌜⌟</span><span class="wb-btn wb-max" onclick="wmToggleMaximize('recyclebin-window')" title="Maximize">▢</span><span class="wb-btn wb-close" onclick="wmClose('recyclebin-window')" title="Close">X</span></div>
     </div>
+    <div class="wbc-reveal-tab" id="wbc-reveal-recyclebin-window" onclick="wbcReveal('recyclebin-window')" title="Show window">+</div>
     <div class="wm-resize-handle n" onmousedown="wmStartResize(event,'recyclebin-window','n')"></div>
     <div class="wm-resize-handle s" onmousedown="wmStartResize(event,'recyclebin-window','s')"></div>
     <div class="wm-resize-handle e" onmousedown="wmStartResize(event,'recyclebin-window','e')"></div>
@@ -1170,6 +1239,35 @@ body.tb-pos-left .tb-sep, body.tb-pos-right .tb-sep{ width:26px; height:1px; mar
       </div>
     </div>
   </div>
+
+  <!-- To8bTerminal window -->
+  <div id="terminal-window" class="app-window" data-wm-title="To8bTerminal" data-wm-icon="⌨️" style="background:#0b0c10;">
+    <div class="win-titlebar" onmousedown="wmStartDrag(event,'terminal-window')" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+      <div class="tb-left" style="color:#c9f7d1;">⌨️ To8bTerminal</div>
+      <div class="win-dots wbc-dots" id="wbc-dots-terminal-window">
+        <span class="wb-btn wb-min" onclick="wmMinimize('terminal-window')" title="Minimize">⌜⌟</span>
+        <span class="wb-btn wb-max" onclick="wmToggleMaximize('terminal-window')" title="Maximize">▢</span>
+        <span class="wb-btn wb-close" onclick="wmClose('terminal-window')" title="Close">X</span>
+      </div>
+    </div>
+    <div class="wbc-reveal-tab" id="wbc-reveal-terminal-window" onclick="wbcReveal('terminal-window')" title="Show window">+</div>
+    <div class="wm-resize-handle n" onmousedown="wmStartResize(event,'terminal-window','n')"></div>
+    <div class="wm-resize-handle s" onmousedown="wmStartResize(event,'terminal-window','s')"></div>
+    <div class="wm-resize-handle e" onmousedown="wmStartResize(event,'terminal-window','e')"></div>
+    <div class="wm-resize-handle w" onmousedown="wmStartResize(event,'terminal-window','w')"></div>
+    <div class="wm-resize-handle ne" onmousedown="wmStartResize(event,'terminal-window','ne')"></div>
+    <div class="wm-resize-handle nw" onmousedown="wmStartResize(event,'terminal-window','nw')"></div>
+    <div class="wm-resize-handle se" onmousedown="wmStartResize(event,'terminal-window','se')"></div>
+    <div class="wm-resize-handle sw" onmousedown="wmStartResize(event,'terminal-window','sw')"></div>
+    <div id="terminal-output" onclick="document.getElementById('terminal-input').focus()"></div>
+    <div id="terminal-inputline">
+      <span id="terminal-prompt">To8bTerminal&gt;</span>
+      <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" onkeydown="terminalKeydown(event)">
+    </div>
+  </div>
+
+  <!-- Windows 12 "unclickable" veil (triggered by C:windows12/unclickable) -->
+  <div id="unclickable-veil"></div>
 
   <!-- Widgets board -->
   <div id="widgets-board">
@@ -1661,6 +1759,7 @@ const APP_WINDOW_META = {
   'security-window': {icon:'🛡️', title:'Windows 12 Security'},
   'file-explorer-window': {icon:'🗂️', title:'File Explorer'},
   'recyclebin-window': {icon:'🗑️', title:'Recycle Bin'},
+  'terminal-window': {icon:'⌨️', title:'To8bTerminal'},
 };
 let switcherIndex = 0;
 let switcherOpen = false;
@@ -1739,11 +1838,224 @@ function wmFocus(id){
   const el = document.getElementById(id);
   wmZTop += 1;
   el.style.zIndex = wmZTop;
+  wbcCurrentFocusId = id;
 }
 document.addEventListener('mousedown', (e) => {
   const win = e.target.closest('.app-window');
   if(win) wmFocus(win.id);
 });
+
+/* ============================================================
+   WINDOW BAR CUSTOMIZER
+   Styles: Liquid Glass Blur / Matter / Animated Green Jelly / Invisible.
+   Invisible mode hides the whole window (opacity/pointer-events),
+   leaving only a small "+" reveal tab. While it's active, the
+   focused window also listens for real "-" / F / X keys as a
+   second way to hide / fullscreen / close it.
+   ============================================================ */
+const WBC_STYLES = ['glass','matter','jelly','invisible'];
+let wbcCurrentFocusId = null;
+function setWindowBarStyle(style){
+  document.body.classList.remove(...WBC_STYLES.map(s => 'wbc-'+s));
+  if(WBC_STYLES.includes(style)) document.body.classList.add('wbc-'+style);
+  document.querySelectorAll('.wbc-style-swatch').forEach(s => s.classList.toggle('selected', s.dataset.wbc === style));
+  saveUserPrefs();
+}
+function wbcReveal(id){
+  const el = document.getElementById(id);
+  el.classList.remove('wm-minimized');
+  wmFocus(id);
+}
+document.addEventListener('keydown', (e) => {
+  if(!document.body.classList.contains('wbc-invisible')) return;
+  if(!wbcCurrentFocusId) return;
+  const el = document.getElementById(wbcCurrentFocusId);
+  if(!el || !el.classList.contains('open')) return;
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // don't hijack typing
+  if(e.key === '-' ){ e.preventDefault(); wmMinimize(wbcCurrentFocusId); }
+  else if(e.key === 'f' || e.key === 'F'){ e.preventDefault(); wmToggleMaximize(wbcCurrentFocusId); }
+  else if(e.key === 'x' || e.key === 'X'){ e.preventDefault(); wmClose(wbcCurrentFocusId); }
+});
+
+/* ============================================================
+   TO8BTERMINAL — a real command-line app inside the simulator.
+   Commands actually do things; unknown input shows an error.
+   ============================================================ */
+let terminalHistory = [];
+let terminalHistPos = -1;
+let terminalPendingConfirm = null; // holds a callback while awaiting y/n
+
+function openTerminal(){
+  openWindow('terminal-window');
+  if(!terminalBooted){
+    terminalBooted = true;
+    tPrint('To8bTerminal v1.0 — type a command. Unknown commands will show an error.', 't-ok');
+  }
+  setTimeout(() => document.getElementById('terminal-input').focus(), 50);
+}
+let terminalBooted = false;
+
+function tPrint(text, cls){
+  const out = document.getElementById('terminal-output');
+  const line = document.createElement('div');
+  line.className = 't-line ' + (cls || '');
+  line.textContent = text;
+  out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
+}
+function terminalKeydown(e){
+  const input = document.getElementById('terminal-input');
+  if(e.key === 'Enter'){
+    const raw = input.value;
+    input.value = '';
+    tPrint('To8bTerminal> ' + raw, 't-cmd');
+    if(raw.trim() !== ''){ terminalHistory.push(raw); terminalHistPos = terminalHistory.length; }
+    runTerminalCommand(raw.trim());
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    if(terminalHistPos > 0){ terminalHistPos--; input.value = terminalHistory[terminalHistPos] || ''; }
+  } else if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    if(terminalHistPos < terminalHistory.length){ terminalHistPos++; input.value = terminalHistory[terminalHistPos] || ''; }
+  }
+}
+
+function runTerminalCommand(cmd){
+  // A confirmation prompt (y/n) is waiting on a previous command
+  if(terminalPendingConfirm){
+    const answer = cmd.toLowerCase();
+    if(answer === 'y'){ const fn = terminalPendingConfirm; terminalPendingConfirm = null; fn(); return; }
+    if(answer === 'n'){ terminalPendingConfirm = null; tPrint('Cancelled.', 't-warn'); return; }
+    tPrint('Please type y or n.', 't-warn');
+    return;
+  }
+  if(cmd === '') return;
+  const c = cmd.toLowerCase();
+
+  if(c === 'help'){
+    tPrint('Known commands:');
+    tPrint('  C:run/To8bterminal/restart      — reopen this terminal automatically after a restart');
+    tPrint('  C:windows12/unclickable         — makes the whole desktop unclickable (careful!)');
+    tPrint('  C:removeRecovery(demo)at:sleep,shutdown,restart,logout — removes the demo Recovery Mode entry points');
+    tPrint('  C:addLogin                      — adds a real login screen (requires the recovery removal fix first)');
+    tPrint('  V:@v/restart&Add                — Windows 12 Recovery Mode easter egg');
+    tPrint('  return/Win11                    — exit back toward "Windows 11" (in-universe only)');
+    tPrint('  clear                           — clear the terminal');
+    return;
+  }
+  if(c === 'clear'){ document.getElementById('terminal-output').innerHTML = ''; return; }
+
+  if(c === 'c:run/to8bterminal/restart'){
+    terminalReopenOnRestart = true;
+    tPrint('Done. To8bTerminal will now reopen automatically after every restart.', 't-ok');
+    return;
+  }
+  if(c === 'c:windows12/unclickable'){
+    tPrint('Making the Windows 12 Concept desktop unclickable and uninteractable...', 't-warn');
+    setTimeout(() => {
+      document.getElementById('unclickable-veil').classList.add('active');
+      tPrint('Done. The desktop can no longer be clicked. Reload the page to undo this.', 't-err');
+    }, 400);
+    return;
+  }
+  if(c === 'c:removerecovery(demo)at:sleep,shutdown,restart,logout'){
+    recoveryDemoRemoved = true;
+    saveUserPrefs();
+    tPrint('Recovery Mode (demo) removed from Sleep, Shutdown, Restart, and Log out.', 't-ok');
+    tPrint('This OS now behaves more realistically — those flows will no longer offer a Recovery Mode detour.', 't-ok');
+    return;
+  }
+  if(c === 'c:addlogin'){
+    if(!recoveryDemoRemoved){
+      tPrint('C:addLogin requires the recovery removal fix first. Run C:removeRecovery(demo)at:sleep,shutdown,restart,logout.', 't-err');
+      return;
+    }
+    realLoginEnabled = true;
+    saveUserPrefs();
+    tPrint('A real login screen has been added. It will appear next time you reach the lock screen.', 't-ok');
+    return;
+  }
+  if(c === 'v:@v/restart&add'){
+    runWin12RecoveryEasterEgg();
+    return;
+  }
+  if(c === 'return/win11'){
+    tPrint('Are you sure to go back to Windows 11? Type y/n', 't-warn');
+    terminalPendingConfirm = () => {
+      tPrint('Returning to Windows 11 Recovery... (this is a fictional in-universe sequence — nothing on your real PC is touched)', 't-warn');
+      setTimeout(() => {
+        tPrint('Windows 11 was not found in Devices here — exiting Windows 12 Concept and restarting.', 't-err');
+        wmClose('terminal-window');
+        doRestart();
+      }, 1200);
+    };
+    return;
+  }
+
+  tPrint('\'' + cmd + '\' is not recognized as a To8bTerminal command. Type "help" for a list of commands.', 't-err');
+}
+
+let terminalReopenOnRestart = false;
+let recoveryDemoRemoved = false;
+let realLoginEnabled = false;
+
+function runWin12RecoveryEasterEgg(){
+  tPrint('What would you like to add?', 't-warn');
+  tPrint('> Click "Windows 12" below to continue.');
+  const out = document.getElementById('terminal-output');
+  const btn1 = document.createElement('button');
+  btn1.textContent = 'Windows 12';
+  btn1.className = 'ed-btn secondary';
+  btn1.style.cssText = 'margin:6px 0; padding:6px 14px; font-size:11.5px;';
+  btn1.onclick = () => {
+    btn1.disabled = true;
+    tPrint('Windows 12', 't-cmd');
+    tPrint('Where should it be added as?', 't-warn');
+    const btn2 = document.createElement('button');
+    btn2.textContent = 'As a real concept OS';
+    btn2.className = 'ed-btn secondary';
+    btn2.style.cssText = 'margin:6px 0; padding:6px 14px; font-size:11.5px;';
+    btn2.onclick = () => {
+      btn2.disabled = true;
+      tPrint('As a real concept OS', 't-cmd');
+      tPrint('Where should it install to?', 't-warn');
+      const btn3 = document.createElement('button');
+      btn3.textContent = 'Windows 11 Recovery';
+      btn3.className = 'ed-btn secondary';
+      btn3.style.cssText = 'margin:6px 0; padding:6px 14px; font-size:11.5px;';
+      btn3.onclick = () => {
+        btn3.disabled = true;
+        tPrint('Windows 11 Recovery', 't-cmd');
+        tPrint('Installing "Windows 12: Concept OS" as a fictional recovery entry...', 't-warn');
+        const track = document.createElement('div');
+        track.className = 'progress-track show';
+        track.style.margin = '8px 0';
+        const fill = document.createElement('div');
+        fill.className = 'progress-fill';
+        track.appendChild(fill);
+        out.appendChild(track);
+        let pct = 0;
+        const iv = setInterval(() => {
+          pct += 8 + Math.random()*10;
+          if(pct >= 100){ pct = 100; clearInterval(iv);
+            fill.style.width = '100%';
+            tPrint('100% — Installed.', 't-ok');
+            tPrint('Note: this is an in-universe easter egg inside the Windows 12 Concept simulator only.', 't-warn');
+            tPrint('A real webpage cannot install anything into your actual Windows 11 Recovery Environment — nothing on your real PC was touched.', 't-warn');
+            tPrint('Within this concept, you can now imagine "Windows 12: Concept OS" listed as a disc under Devices in Recovery.', 't-ok');
+          } else fill.style.width = pct + '%';
+        }, 150);
+      };
+      out.appendChild(btn3);
+      out.scrollTop = out.scrollHeight;
+    };
+    out.appendChild(btn2);
+    out.scrollTop = out.scrollHeight;
+  };
+  out.appendChild(btn1);
+  out.scrollTop = out.scrollHeight;
+}
 
 function wmClose(id){
   const el = document.getElementById(id);
@@ -2918,6 +3230,7 @@ async function saveUserPrefs(){
       accent2: getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim(),
       soundVariants: SOUND_VARIANTS,
       taskbarMaker: tmState,
+      windowBarStyle: WBC_STYLES.find(s => document.body.classList.contains('wbc-'+s)) || null,
     };
     await window.storage.set('user-prefs', JSON.stringify(prefs), false);
   }catch(e){ /* storage unavailable — preferences just won't persist */ }
@@ -2947,6 +3260,7 @@ async function loadUserPrefs(){
     if(p.accent && p.accent2) setAccentColor(p.accent, p.accent2);
     if(p.soundVariants) SOUND_VARIANTS = p.soundVariants;
     if(p.taskbarMaker) tmLoadState(p.taskbarMaker);
+    if(p.windowBarStyle) setWindowBarStyle(p.windowBarStyle);
     buildSoundScanList();
   }catch(e){ /* no saved prefs yet, or storage unavailable */ }
 }
